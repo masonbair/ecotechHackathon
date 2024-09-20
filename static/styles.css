@@ -1,7 +1,5 @@
-/* styles.css */
-
 /* Basic Reset */
-body, form, label, input, select, button, img {
+body, form, label, input, select, button, img, table {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -25,8 +23,7 @@ header {
     justify-content: center;
 }
 
-
- h2,h3 {
+h2,h3 {
     color: rgb(0, 0, 0);
     font-size: 2rem; /* Adjust font size as needed */
     margin: 0;
@@ -78,12 +75,6 @@ form button:hover {
     background-color: #0056b3;
 }
 
-form img {
-    display: block;
-    max-width: auto;
-    height: auto;
-    margin: 20px auto;
-}
 /* Plot Image Styles */
 img.plot-image {
     display: block;
@@ -93,27 +84,59 @@ img.plot-image {
     margin: 20px auto; /* Center align with margin auto */
 }
 
-
-#fileInput, #loadDataBtn {
-    display: block;
-    margin: 20px auto;
-}
-
+/* Table Styles */
 table {
-    width: 100%;
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 20px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     border-collapse: collapse;
-    margin-top: 20px;
 }
 
 table, th, td {
-    border: 1px solid black;
+    border: 1px solid #ddd;
 }
 
 th, td {
-    padding: 10px;
+    padding: 15px;
     text-align: center;
 }
 
 thead {
     background-color: #f2f2f2;
+    font-weight: bold;
+}
+
+tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+/* Table Hover Effect */
+tbody tr:hover {
+    background-color: #f1f1f1;
+}
+/* List Styles */
+ul, ol {
+    margin: 0;
+    padding: 150px; /* Match form padding */
+    list-style: none; /* Remove default bullets or numbers */
+}
+
+li {
+    margin: 10px 0; /* Adjust spacing between list items */
+    padding: 100px; /* Add padding for clarity */
+    border: 1px solid #ddd; /* Match form border */
+    border-radius: 4px;
+    background-color: #f9f9f9; /* Optional: Match form background color */
+}
+
+
+thead th {
+    background-color: #f2f2f2; /* Match form background color */
+}
+
+tbody tr {
+    background-color: #fff; /* Match form background color */
 }

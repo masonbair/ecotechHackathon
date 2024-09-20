@@ -9,6 +9,8 @@ app = Flask(__name__)
 
 # Directory to store uploaded files
 UPLOAD_FOLDER = 'static/uploads/'
+faulty_time_data = []
+
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
@@ -17,24 +19,16 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 # Route for the homepage (frontend)
 @app.route('/')
 def index():
-    faulty_time_data = []
-
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], 'timedata.txt')
     print(f"Reading file from: {file_path}")
 
-    try:
-        with open(file_path, 'r') as file:
-            print('File opened successfully!')
-            for line in file:
-                print(f"Line: {line}")  # Debugging each line
-                start, end, time = line.strip().split(',')
-                faulty_time_data.append((start, end, time))
-    except FileNotFoundError:
-        print(f"File not found at {file_path}")
-        return "Error: timedata.txt file not found", 404
-    except Exception as e:
-        print(f"An error occurred: {e}")
-        return f"Error reading file: {e}", 500
+    
+    with open(file_path, 'r') as file:
+        print('File opened successfully!')
+        for line in file:
+            print(f"Line: {line}")  # Debugging each line
+            start, end, time = line.strip().split(',')
+            faulty_time_data.append((start, end, time))
 
     # Pass the faulty time data to the HTML template
     return render_template('index.html', faulty_time_data=faulty_time_data)
@@ -83,7 +77,7 @@ def upload_file():
         plt.savefig(plot_path)
 
         # Return plot and data quality result
-        return render_template('index.html', plot_url=plot_path, data_quality=data_quality)
+        return render_template('index.html', plot_url=plot_path, data_quality=data_quality, faulty_time_data=faulty_time_data)
     else:
         return "Parameter not found in the uploaded file", 400
 
