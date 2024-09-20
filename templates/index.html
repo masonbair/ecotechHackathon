@@ -113,9 +113,9 @@
             </table>
         </div>
     </div>
-    {% if plot2_url %}
-        <img src="{{ plot2_url }}" alt="Statistical Plot" class="plot-image">
-        {% endif %}
+    <div class="tables-container">
+        <div id="plotImages"></div>
+    </div>
     
     <script>
         let myChart = null;  // Global variable to store the chart instance
@@ -241,6 +241,15 @@
 
                 // Display data quality
                 document.getElementById('dataQuality').innerText = `${responseData.data_quality.parameter} Quality: ${responseData.data_quality.quality}`;
+                const plotImageContainer = document.getElementById('plotImages');
+
+                // Iterate over the plot images and create image elements
+                responseData.data_quality.plots.forEach(plot => {
+                const imageElement = document.createElement('img');
+                imageElement.src = plot; // Assuming the plot paths are directly usable
+                imageElement.alt = `Plot for ${responseData.data_quality.parameter}`;
+                plotImageContainer.appendChild(imageElement);
+                });
             });
         });
 

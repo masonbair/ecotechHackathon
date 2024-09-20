@@ -40,6 +40,7 @@ def index():
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
+    data_quality = {}
     print("Creating graph")
     parameter = request.form['parameter']
     print("P graph")
@@ -79,6 +80,11 @@ def upload_file():
             } 
         print("Analyzing graph")
 
+        print("Updating the quality")
+        data_quality.update({
+            "plots": ["../static/uploads/plot.png", "../static/uploads/plot.png", "../static/uploads/plot.png"]
+        })
+
 
         # Prepare data for Chart.js
         chart_data = {
@@ -87,7 +93,7 @@ def upload_file():
             'threshold_from': threshold_from,
             'threshold_to': threshold_to
         }
-        print("Returning graph")
+        print(data_quality)
 
 
         return jsonify({
