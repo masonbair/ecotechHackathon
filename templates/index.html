@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Data Quality App</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="../static/styles.css">
 </head>
 <body>
     <header>
@@ -46,5 +46,31 @@
     <img src="{{ plot_url }}" alt="Time Series Plot" class="plot-image">
         <h3>Data Quality: {{ data_quality }}</h3>
     {% endif %}
+
 </body>
+
+<button onclick="readFile()">BUTTON</button>
+<table id="faultyTimeTable">
+    <thead>
+        <tr>
+            <th>Start Time</th>
+            <th>End Time</th>
+            <th>Duration</th>
+        </tr>
+    </thead>
+    <tbody>
+        <!-- Loop over the faulty time data and render it -->
+        {% for start, end, time in faulty_time_data %}
+        <tr>
+            <td>{{ start }}</td>
+            <td>{{ end }}</td>
+            <td>{{ time }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+    <script src="../static/script.js"></script>
+
+
 </html>
