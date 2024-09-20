@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Quality App</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <header>
+        
+    </header>
+    <br><br>
+    <h2>Data Quality Control Check</h2>
+    <br>
+    <form action="/upload" method="post" enctype="multipart/form-data">
+        <label for="parameter">Select Parameter:</label>
+        <select name="parameter" id="parameter" required>
+            <option value="Turbidity">Turbidity</option>
+            <option value="Temperature">Temperature</option>
+            <option value="Flow">Flow</option>
+        </select>
+
+        <label for="threshold_from">Threshold From:</label> 
+        <input type="number" step="any" name="threshold_from" id="threshold_from" required>
+
+        <label for="threshold_to">Threshold To:</label>
+        <input type="number" step="any" name="threshold_to" id="threshold_to" required>
+
+        <label for="disruption_time">Max Disruption Time:</label>
+        <input type="number" name="disruption_time_value" id="disruption_time_value" required>
+        <select name="disruption_time_unit" id="disruption_time_unit" required>
+            <option value="minutes">Minutes</option>
+            <option value="hours">Hours</option>
+            <option value="days">Days</option>
+        </select>
+
+        <label for="file">Upload CSV File:</label>
+        <input type="file" name="file" id="file" accept=".csv" required>
+
+        <button type="submit">Submit</button>
+    </form>
+
+    <!-- Display results if available -->
+    {% if plot_url %}
+    <img src="{{ plot_url }}" alt="Time Series Plot" class="plot-image">
+        <h3>Data Quality: {{ data_quality }}</h3>
+    {% endif %}
+</body>
+</html>

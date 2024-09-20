@@ -1,0 +1,94 @@
+/* styles.css */
+
+/* Basic Reset */
+body, form, label, input, select, button, img {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Body Styles */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f9;
+    color: #333;
+}
+
+/* Header Styles */
+header {
+    background-image: url('/static/header.png'); /* Adjust path as needed */
+    background-size: cover;
+    background-position: center;
+    height: 500px; /* Adjust height as needed */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+ h2,h3 {
+    color: rgb(0, 0, 0);
+    font-size: 2rem; /* Adjust font size as needed */
+    margin: 0;
+    text-align: center;
+}
+
+/* Form Styles */
+form {
+    max-width: 1200px; /* Adjust width as needed */
+    margin: 20px auto;
+    padding: 20px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px; /* Space between items */
+}
+
+form label {
+    flex: 1 1 150px; /* Adjust as needed */
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+form input[type="number"],
+form select,
+form input[type="file"] {
+    flex: 2 1 200px; /* Adjust as needed */
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 20px; /* Space below each field */
+}
+
+form button {
+    flex: 1 1 100%;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 15px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 10px; /* Space above the button */
+}
+
+form button:hover {
+    background-color: #0056b3;
+}
+
+form img {
+    display: block;
+    max-width: auto;
+    height: auto;
+    margin: 20px auto;
+}
+/* Plot Image Styles */
+img.plot-image {
+    display: block;
+    max-width: 1200px; /* Adjust as needed */
+    width: 100%;
+    height: auto;
+    margin: 20px auto; /* Center align with margin auto */
+}
