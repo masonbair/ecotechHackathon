@@ -53,6 +53,16 @@
     </div>
 
     <div class="tables-container">
+        <div id="myModal" class="modal">
+            <!-- Modal content -->
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <div id="dynamicChartContainer"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="tables-container">
         <!-- First table with heading -->
         <div class="table-block">
             <h2>Suspected Faulty Areas of Data</h2>
@@ -66,11 +76,12 @@
                 </thead>
                 <tbody>
                     <!-- Loop over the faulty time data and render it -->
-                    {% for start, end, time in faulty_time_data %}
+                    {% for start, end, time, index in faulty_time_data %}
                     <tr>
                         <td>{{ start }}</td>
                         <td>{{ end }}</td>
                         <td>{{ time }}</td>
+                        <td><a id="view-point-{{ index }}" data-index="{{ index }}" class="view-point">View Point</a></td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -90,11 +101,12 @@
                 </thead>
                 <tbody>
                     <!-- Loop over the missing data and render it -->
-                    {% for start, end, time in faulty_time_data %}
+                    {% for start, end, time, index in faulty_time_data %}
                     <tr>
                         <td>{{ start }}</td>
                         <td>{{ end }}</td>
                         <td>{{ time }}</td>
+                        <td><a >View Point</a></td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -256,6 +268,89 @@
             }
                 startSlidingWindow(intervalTime);
             });
+
+            var modal = document.getElementById("myModal");
+            
+            document.querySelectorAll('.view-point').forEach(point => {
+                point.addEventListener('click', function(e) {
+                    // Get the index from the clicked element
+                    const index = parseInt(this.getAttribute('data-index'));
+
+                    // Determine the start and end of the window (20 before and 20 after)
+                    const windowStart = Math.max(0, index - 20); // Ensure start doesn't go below 0
+                    const windowEnd = Math.min(index + 21, data.chart_data.labels.length); // End is index + 20, ensuring it doesn't exceed data length
+
+                    // Extract exactly 20 points before and after the selected index (41 points total)
+                    const labelsSlice = data.chart_data.labels.slice(windowStart, windowEnd);
+                    const dataSlice = data.chart_data.data.slice(windowStart, windowEnd);
+
+                    // Remove any existing dynamic chart before creating a new one
+                    const existingChartCanvas = document.getElementById('dynamicChart');
+                    if (existingChartCanvas) {
+                        existingChartCanvas.remove();
+                    }
+
+                    // Create a new canvas element for the new chart
+                    const dynamicChartContainer = document.getElementById('dynamicChartContainer');
+                    const newCanvas = document.createElement('canvas');
+                    newCanvas.id = 'dynamicChart';
+                    dynamicChartContainer.appendChild(newCanvas);
+
+                    // Initialize the new chart showing 20 points before and after the selected index
+                    const ctx = newCanvas.getContext('2d');
+                    const dynamicChart = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: labelsSlice,  // Display the sliced labels
+                            datasets: [{
+                                label: `Data Window Around Index ${index}`,
+                                data: dataSlice,  // Display the sliced data
+                                borderColor: 'rgba(255, 99, 132, 1)',
+                                borderWidth: 1,
+                                fill: false,
+                                tension: 0 // Straight lines between points
+                            }]
+                        },
+                        options: {
+                            scales: {
+                                y: {
+                                    beginAtZero: false
+                                }
+                            },
+                            elements: {
+                                line: {
+                                    tension: 0 // Set to 0 for straight lines between points
+                                }
+                            }
+                        }
+                    });
+
+                    // Show the modal
+                    modal.style.display = "block"; // Open the modal
+                });
+            });
+
+            // When the user clicks on <span> (x), close the modal
+            span.onclick = function() {
+                modal.style.display = "none";
+                const existingChartCanvas = document.getElementById('dynamicChart');
+                if (existingChartCanvas) {
+                    existingChartCanvas.remove(); // Clean up the chart when closing the modal
+                }
+            }
+
+            // When the user clicks anywhere outside of the modal, close it
+            window.onclick = function(event) {
+                if (event.target == modal) {
+                    modal.style.display = "none";
+                    const existingChartCanvas = document.getElementById('dynamicChart');
+                    if (existingChartCanvas) {
+                        existingChartCanvas.remove(); // Clean up the chart when closing the modal
+                    }
+                }
+            }
+
+
     </script>
 </body>
 </html>

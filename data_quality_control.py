@@ -30,8 +30,8 @@ def index():
         print('File opened successfully!')
         for line in file:
             print(f"Line: {line}")  # Debugging each line
-            start, end, time = line.strip().split(',')
-            faulty_time_data.append((start, end, time))
+            index, start, end, time = line.strip().split(',')
+            faulty_time_data.append((start, end, time, index))
 
     session['faulty_time_data'] = faulty_time_data
     # Pass the faulty time data to the HTML template
@@ -39,10 +39,15 @@ def index():
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
+    print("Creating graph")
     parameter = request.form['parameter']
+    print("P graph")
+
     threshold_from = float(request.form['threshold_from'])
     threshold_to = float(request.form['threshold_to'])
     disruption_time_value = float(request.form['disruption_time_value'])
+    print("Building graph")
+
     disruption_time_unit = request.form['disruption_time_unit']
     file = request.files['file']
 
@@ -52,6 +57,8 @@ def upload_file():
 
     # Analyze the file (CSV assumed)
     df = pd.read_csv(file_path)
+    print("Reading data")
+
 
     # Perform basic analysis (e.g., filter by parameter)
     if parameter in df.columns:
@@ -69,6 +76,8 @@ def upload_file():
                 'quality': "Bad",
                 'parameter': parameter
             } 
+        print("Analyzing graph")
+
 
         # Prepare data for Chart.js
         chart_data = {
@@ -77,6 +86,8 @@ def upload_file():
             'threshold_from': threshold_from,
             'threshold_to': threshold_to
         }
+        print("Returning graph")
+
 
         return jsonify({
             'data_quality': data_quality,
@@ -84,66 +95,6 @@ def upload_file():
         })
     else:
         return jsonify({'error': 'Parameter not found in the uploaded file'}), 400
-
-'''
-# Route to handle the file upload and data processing
-@app.route('/upload', methods=['POST'])
-def upload_file():
-    # Get the form data
-    parameter = request.form['parameter']
-    threshold_from = float(request.form['threshold_from'])
-    threshold_to = float(request.form['threshold_to'])
-    disruption_time_value = float(request.form['disruption_time_value'])
-    disruption_time_unit = request.form['disruption_time_unit']
-    file = request.files['file']
-
-    # Save the uploaded file
-    file_path = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
-    file.save(file_path)
-
-    # Analyze the file (CSV assumed)
-    df = pd.read_csv(file_path)
-
-    # Perform basic analysis (e.g., filter by parameter)
-    if parameter in df.columns:
-        df_filtered = df[[parameter]]
-
-        # Check data quality based on the threshold range
-        mean_value = df_filtered[parameter].mean()
-        if threshold_from <= mean_value <= threshold_to:
-            data_quality = "Good"
-        else:
-            data_quality = "Bad"
-
-        # Generate a time series plot
-        plt.figure(figsize=(10, 5))
-        plt.plot(df.index, df_filtered[parameter], label=parameter)
-        plt.axhline(y=threshold_from, color='r', linestyle='--', label=f'Threshold From: {threshold_from}')
-        plt.axhline(y=threshold_to, color='g', linestyle='--', label=f'Threshold To: {threshold_to}')
-        plt.title(f'Time Series of {parameter}')
-        plt.xlabel('Time')
-        plt.ylabel(parameter)
-        plt.legend()
-
-        # Save the plot
-        plot_path = os.path.join(app.config['UPLOAD_FOLDER'], 'plot.png')
-        plt.savefig(plot_path)
-
-        faulty_time_data = session.get('faulty_time_data', [])
-
-        # Return plot and data quality result
-        return render_template('index.html', plot_url=plot_path, data_quality=data_quality, faulty_time_data=faulty_time_data)
-    else:
-        return "Parameter not found in the uploaded file", 400
-'''
-
-@app.route('/data')
-def data():
-    data = {
-        'labels': ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
-        'values': [65, 59, 80, 81, 56, 55, 40]
-    }    
-    return jsonify(data)
 
 
 if __name__ == '__main__':
