@@ -19,6 +19,7 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 # Route for the homepage (frontend)
 @app.route('/')
 def index():
+    faulty_time_data = []
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], 'timedata.txt')
     print(f"Reading file from: {file_path}")
 

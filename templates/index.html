@@ -48,27 +48,56 @@
     {% endif %}
 
 </body>
+<div class="tables-container">
+    <!-- First table with heading -->
+    <div class="table-block">
+        <h2>Suspected Faulty Areas of Data</h2>
+        <table id="faultyTimeTable">
+            <thead>
+                <tr>
+                    <th>Start Time</th>
+                    <th>End Time</th>
+                    <th>Duration</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Loop over the faulty time data and render it -->
+                {% for start, end, time in faulty_time_data %}
+                <tr>
+                    <td>{{ start }}</td>
+                    <td>{{ end }}</td>
+                    <td>{{ time }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
-<h2>Suspected Faulty Areas of Data</h2>
-<table id="faultyTimeTable">
-    <thead>
-        <tr>
-            <th>Start Time</th>
-            <th>End Time</th>
-            <th>Duration</th>
-        </tr>
-    </thead>
-    <tbody>
-        <!-- Loop over the faulty time data and render it -->
-        {% for start, end, time in faulty_time_data %}
-        <tr>
-            <td>{{ start }}</td>
-            <td>{{ end }}</td>
-            <td>{{ time }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+    <!-- Second table with heading -->
+    <div class="table-block">
+        <h2>Areas Missing Data</h2>
+        <table id="faultyTimeTable">
+            <thead>
+                <tr>
+                    <th>Start Time</th>
+                    <th>End Time</th>
+                    <th>Duration</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Loop over the missing data and render it -->
+                {% for start, end, time in faulty_time_data %}
+                <tr>
+                    <td>{{ start }}</td>
+                    <td>{{ end }}</td>
+                    <td>{{ time }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
 
     <script src="../static/script.js"></script>
 

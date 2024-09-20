@@ -84,10 +84,23 @@ img.plot-image {
     margin: 20px auto; /* Center align with margin auto */
 }
 
-/* Table Styles */
-table {
-    max-width: 1200px;
+/* Flexbox container for tables */
+.tables-container {
+    display: flex;
+    justify-content: center;
+    gap: 40px; /* Space between the two tables */
     margin: 20px auto;
+    max-width: 1200px; /* Adjust as needed */
+}
+
+/* Each table block containing both the heading and table */
+.table-block {
+    text-align: center; /* Center both the heading and table */
+}
+
+table {
+    width: 100%;
+    max-width: 500px; /* Set a fixed width for the tables */
     padding: 20px;
     background: #fff;
     border-radius: 8px;
@@ -116,27 +129,4 @@ tbody tr:nth-child(even) {
 /* Table Hover Effect */
 tbody tr:hover {
     background-color: #f1f1f1;
-}
-/* List Styles */
-ul, ol {
-    margin: 0;
-    padding: 150px; /* Match form padding */
-    list-style: none; /* Remove default bullets or numbers */
-}
-
-li {
-    margin: 10px 0; /* Adjust spacing between list items */
-    padding: 100px; /* Add padding for clarity */
-    border: 1px solid #ddd; /* Match form border */
-    border-radius: 4px;
-    background-color: #f9f9f9; /* Optional: Match form background color */
-}
-
-
-thead th {
-    background-color: #f2f2f2; /* Match form background color */
-}
-
-tbody tr {
-    background-color: #fff; /* Match form background color */
 }
