@@ -5,15 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Data Quality App</title>
     <link rel="stylesheet" href="../static/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@latest"></script>
 </head>
 <body>
-    <header>
-        
-    </header>
+    <header></header>
     <br><br>
     <h2>Data Quality Control Check</h2>
     <br>
-    <form action="/upload" method="post" enctype="multipart/form-data">
+    <form id="uploadForm" method="post" enctype="multipart/form-data">
         <label for="parameter">Select Parameter:</label>
         <select name="parameter" id="parameter" required>
             <option value="Turbidity">Turbidity</option>
@@ -41,65 +41,221 @@
         <button type="submit">Submit</button>
     </form>
 
-    <!-- Display results if available -->
-    {% if plot_url %}
-    <img src="{{ plot_url }}" alt="Time Series Plot" class="plot-image">
-        <h3>Data Quality: {{ data_quality }}</h3>
-    {% endif %}
+    <h3 id="dataQuality"></h3>
 
+    <div class="tables-container">
+        <canvas id="myChart" width="300" height="166"></canvas>
+        <select name="chart_update_speed" id="chart_update_speed">
+            <option value="onesec">1 Second</option>
+            <option value="fivesec">5 Seconds</option>
+            <option value="onemin">One Minute</option>
+        </select>
+    </div>
+
+    <div class="tables-container">
+        <!-- First table with heading -->
+        <div class="table-block">
+            <h2>Suspected Faulty Areas of Data</h2>
+            <table id="faultyTimeTable">
+                <thead>
+                    <tr>
+                        <th>Start Time</th>
+                        <th>End Time</th>
+                        <th>Duration</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Loop over the faulty time data and render it -->
+                    {% for start, end, time in faulty_time_data %}
+                    <tr>
+                        <td>{{ start }}</td>
+                        <td>{{ end }}</td>
+                        <td>{{ time }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    
+        <!-- Second table with heading -->
+        <div class="table-block">
+            <h2>Areas Missing Data</h2>
+            <table id="faultyTimeTable">
+                <thead>
+                    <tr>
+                        <th>Start Time</th>
+                        <th>End Time</th>
+                        <th>Duration</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Loop over the missing data and render it -->
+                    {% for start, end, time in faulty_time_data %}
+                    <tr>
+                        <td>{{ start }}</td>
+                        <td>{{ end }}</td>
+                        <td>{{ time }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% if plot2_url %}
+        <img src="{{ plot2_url }}" alt="Statistical Plot" class="plot-image">
+        {% endif %}
+    
+    <script>
+        let myChart = null;  // Global variable to store the chart instance
+        let data = null;  // Global variable to store the full data
+        let currentIndex = 0;  // Index to track the current position in the data
+        const windowSize = 20;  // Number of data points to display at a time
+        let intervalId = null; // This is configuration for the graph speed that can be changed.
+
+        function initializeChart() {
+            const ctx = document.getElementById('myChart').getContext('2d');
+            myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.chart_data.labels.slice(0, windowSize),
+                    datasets: [{
+                        label: 'Parameter Data',
+                        data: data.chart_data.data.slice(0, windowSize),
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1,
+                        fill: false
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            ticks: {
+                                // Allow scaling based on the data
+                                // Suggested min/max can be set to null for automatic scaling
+                                suggestedMin: null,
+                                suggestedMax: null
+                            }
+                        },
+                        x: {
+                            type: 'linear', // Make sure x-axis is treated as a linear scale
+                            position: 'bottom'
+                        }
+                    },
+                    plugins: {
+                        annotation: {
+                            annotations: {
+                                thresholdFrom: {
+                                    type: 'line',
+                                    yMin: data.chart_data.threshold_from,
+                                    yMax: data.chart_data.threshold_from,
+                                    borderColor: 'red',
+                                    borderWidth: 2,
+                                    label: {
+                                        content: `Threshold From`,
+                                        enabled: true,
+                                        position: 'center'
+                                    }
+                                },
+                                thresholdTo: {
+                                    type: 'line',
+                                    yMin: data.chart_data.threshold_to,
+                                    yMax: data.chart_data.threshold_to,
+                                    borderColor: 'green',
+                                    borderWidth: 2,
+                                    label: {
+                                        content: `Threshold To`,
+                                        enabled: true,
+                                        position: 'center'
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateChart() {
+            if (!data) return;
+
+            myChart.data.labels.shift();
+            myChart.data.datasets[0].data.shift();
+            myChart.data.labels.push(data.chart_data.labels[currentIndex + windowSize]);
+            myChart.data.datasets[0].data.push(data.chart_data.data[currentIndex + windowSize]);
+
+            // Update the chart
+            myChart.update();
+        }
+
+        function startSlidingWindow(intervalTime) {
+            intervalId = setInterval(() => {
+                if (data && data.chart_data.labels.length > windowSize) {
+                    updateChart();
+
+                    // Move the sliding window
+                    currentIndex = (currentIndex + 1) % (data.chart_data.labels.length - windowSize + 1);
+                }
+            }, intervalTime); 
+        }
+
+
+        //Event listener for the submit button and then recieving the data from the python backend
+        document.getElementById('uploadForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            var formData = new FormData(this);
+            
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(responseData => {
+                if (responseData.error) {
+                    alert(responseData.error);
+                    return;
+                }
+
+                // Store the full data
+                data = responseData;
+
+                // Initialize the chart with the initial window
+                initializeChart();
+
+                // Reset the current index and start the sliding window
+                currentIndex = 0;
+                startSlidingWindow(1000);
+
+                // Display data quality
+                document.getElementById('dataQuality').innerText = `${responseData.data_quality.parameter} Quality: ${responseData.data_quality.quality}`;
+            });
+        });
+
+        //This is the Event listener for the selection of the speed
+        document.getElementById('chart_update_speed').addEventListener('change', function() {
+            const selectedSpeed = this.value;
+            let intervalTime = 1000;
+
+            switch (selectedSpeed) {
+                case 'onesec':
+                    intervalTime = 1000;  // 1 second
+                    break;
+                case 'fivesec':
+                    intervalTime = 5000;  // 5 seconds
+                    break;
+                case 'onemin':
+                    intervalTime = 60000; // 1 minute
+                    break;
+                default:
+                    intervalTime = 1000;  // Default to 1 second
+            }
+
+            if (intervalId) {
+                clearInterval(intervalId);
+            }
+                startSlidingWindow(intervalTime);
+            });
+    </script>
 </body>
-<div class="tables-container">
-    <!-- First table with heading -->
-    <div class="table-block">
-        <h2>Suspected Faulty Areas of Data</h2>
-        <table id="faultyTimeTable">
-            <thead>
-                <tr>
-                    <th>Start Time</th>
-                    <th>End Time</th>
-                    <th>Duration</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Loop over the faulty time data and render it -->
-                {% for start, end, time in faulty_time_data %}
-                <tr>
-                    <td>{{ start }}</td>
-                    <td>{{ end }}</td>
-                    <td>{{ time }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-
-    <!-- Second table with heading -->
-    <div class="table-block">
-        <h2>Areas Missing Data</h2>
-        <table id="faultyTimeTable">
-            <thead>
-                <tr>
-                    <th>Start Time</th>
-                    <th>End Time</th>
-                    <th>Duration</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Loop over the missing data and render it -->
-                {% for start, end, time in faulty_time_data %}
-                <tr>
-                    <td>{{ start }}</td>
-                    <td>{{ end }}</td>
-                    <td>{{ time }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-</div>
-
-
-    <script src="../static/script.js"></script>
-
-
 </html>
