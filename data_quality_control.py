@@ -1,11 +1,12 @@
 import matplotlib
 matplotlib.use('Agg')  # Set non-GUI backend for Matplotlib
 import matplotlib.pyplot as plt
-from flask import Flask, render_template, request, redirect, url_for, send_file
+from flask import Flask, render_template, request, redirect, url_for, send_file, session
 import pandas as pd
 import os
 
 app = Flask(__name__)
+app.secret_key = 'ecotech'  # Required for using Flask sessions
 
 # Directory to store uploaded files
 UPLOAD_FOLDER = 'static/uploads/'
@@ -19,6 +20,7 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 # Route for the homepage (frontend)
 @app.route('/')
 def index():
+    print("Erasing data")
     faulty_time_data = []
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], 'timedata.txt')
     print(f"Reading file from: {file_path}")
@@ -31,6 +33,7 @@ def index():
             start, end, time = line.strip().split(',')
             faulty_time_data.append((start, end, time))
 
+    session['faulty_time_data'] = faulty_time_data
     # Pass the faulty time data to the HTML template
     return render_template('index.html', faulty_time_data=faulty_time_data)
 
@@ -76,6 +79,8 @@ def upload_file():
         # Save the plot
         plot_path = os.path.join(app.config['UPLOAD_FOLDER'], 'plot.png')
         plt.savefig(plot_path)
+
+        faulty_time_data = session.get('faulty_time_data', [])
 
         # Return plot and data quality result
         return render_template('index.html', plot_url=plot_path, data_quality=data_quality, faulty_time_data=faulty_time_data)
